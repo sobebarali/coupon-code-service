@@ -1,225 +1,169 @@
-# RecoCollect - Node.js, Express, PostgreSQL, TDD
+# Coupon Service
 
-This project implements a backend system that allows users to create and manage collections of their recommendations (such as movies, TV shows, places, songs, etc.). Users can add and remove recommendations from collections and view their collections with pagination support.
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [Installation](#installation)
+4. [API Documentation](#api-documentation)
+   - [Add Repeat Counts to a Coupon Code](#add-repeat-counts-to-a-coupon-code)
+   - [Verify Coupon Code Validity](#verify-coupon-code-validity)
+   - [Apply Coupon Code](#apply-coupon-code)
+5. [Testing](#testing)
+6. [Design Decisions and Trade-offs](#design-decisions-and-trade-offs)
+7. [Scalability Considerations](#scalability-considerations)
+8. [Contributing](#contributing)
+9. [License](#license)
+
+## Project Overview
+
+This project enhances a SaaS platform providing "Coupon Code" services with a new feature to mitigate fraud using "repeat counts" - the number of times a coupon can be used. The system implements various repeat count configurations across user and time axes.
 
 ## Features
 
-- Create a new collection for a user.
-- Add recommendations to a collection.
-- Remove recommendations from a collection.
-- View all collections for a user with pagination support.
-- Delete a collection.
-- Error handling for invalid scenarios.
+- Add repeat count configurations to coupon codes
+- Verify coupon code validity
+- Apply coupon codes with adherence to repeat count limits
+- Supports multiple repeat count axes:
+  - Global Total Repeat Count
+  - User Total Repeat Count
+  - User Daily Repeat Count
+  - User Weekly Repeat Count
 
-## Database Schema Modifications
-
-### Existing Schema:
-
-#### `users` Table:
-
-```sql
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  fname VARCHAR(255) NOT NULL,
-  sname VARCHAR(255) NOT NULL,
-  profile_picture VARCHAR(255),
-  bio TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-#### `recommendations` Table:
-
-```sql
-CREATE TABLE recommendations (
-  id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL,
-  caption TEXT,
-  category VARCHAR(50) NOT NULL,
-  pictures TEXT[],
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### New Schema: `collections` Table
-
-```sql
-CREATE TABLE collections (
-  id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  recommendation_ids INT[] DEFAULT '{}',  -- Array to hold recommendation IDs
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-- `collections` table holds collections for users with an array of recommendation IDs.
-
-## API Documentation
-
-### Base URL: `/api/v1`
-
-### 1. Create Collection
-
-- **Method**: POST
-- **Endpoint**: `/collections`
-- **Description**: Creates a new collection for a user.
-- **Request Body**:
-  ```json
-  {
-    "name": "My Collection",
-    "description": "A description of the collection",
-    "user_id": 1
-  }
-  ```
-
-### 2. Add Recommendation to Collection
-
-- **Method**: POST
-- **Endpoint**: `/collections/{collectionId}/recommendations`
-- **Description**: Adds a recommendation to a specific collection.
-- **Request Body**:
-  ```json
-  {
-    "recommendation_id": 1
-  }
-  ```
-
-### 3. Remove Recommendation from Collection
-
-- **Method**: DELETE
-- **Endpoint**: `/collections/{collectionId}/recommendations/{recommendationId}`
-- **Description**: Removes a recommendation from a specific collection.
-
-### 4. View Collections
-
-- **Method**: GET
-- **Endpoint**: `/collections`
-- **Description**: Retrieves all collections for a user with pagination support.
-- **Query Parameters**:
-  - `user_id` (required): ID of the user
-  - `page` (optional): Page number (default: 1)
-  - `limit` (optional): Number of collections per page (default: 10)
-- **Example URL**:
-  ```
-  GET /api/v1/collections?user_id=123&page=2&limit=10
-  ```
-
-### 5. Delete Collection
-
-- **Method**: DELETE
-- **Endpoint**: `/collections/{collectionId}`
-- **Description**: Deletes a collection.
-
-## Error Handling
-
-- 400 Bad Request: Missing or invalid parameters
-- 403 Forbidden: User doesn't have permission to perform the action
-- 404 Not Found: Resource not found
-- 500 Internal Server Error: Unexpected server error
-
-## Project Setup
+## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (>= v14)
-- **PostgreSQL** (v12+)
-- **Prisma** (ORM)
-- **npx** (to run Prisma commands)
-- **npm** or **yarn** for package management
+- Node.js (v14 or later)
+- npm (v6 or later)
 
 ### Installation
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/sobebarali/reckit-coding-challenge
-   cd reckit-coding-challenge
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/coupon-service.git
+   cd coupon-service
    ```
 
-2. **Install dependencies**:
-
-   Using npm:
-
-   ```bash
+2. Install dependencies:
+   ```
    npm install
    ```
 
-   Using yarn:
-
-   ```bash
-   yarn install
+3. Start the server:
+   ```
+   npm start
    ```
 
-3. **Set up environment variables**:
+## API Documentation
 
-   Create a `.env` file at the root of your project and add the following variables:
+### Add Repeat Counts to a Coupon Code
 
-   ```bash
-   DATABASE_URL=postgresql://username:password@localhost:5432/dbname
-   ```
+- **Endpoint:** `POST /api/coupons/repeat-counts`
+- **Description:** Adds repeat count configuration to a coupon code
+- **Request Body:**
+  ```json
+  {
+    "couponCode": "SUMMER2023",
+    "repeatCounts": {
+      "globalTotal": 10000,
+      "userTotal": 3,
+      "userDaily": 1,
+      "userWeekly": 1
+    }
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Repeat counts added successfully"
+  }
+  ```
 
-4. **Prisma Init** (if using Prisma):
+### Verify Coupon Code Validity
 
-   ```bash
-   npx prisma init
-   ```
+- **Endpoint:** `GET /api/coupons/verify/:couponCode`
+- **Description:** Verifies if a coupon code is valid and adheres to repeat count configurations
+- **Response:**
+  ```json
+  {
+    "valid": true,
+    "message": "Coupon code is valid"
+  }
+  ```
 
-5. **Introspect your database**
+### Apply Coupon Code
 
-   ```bash
-   npx prisma db pull
-   ```
+- **Endpoint:** `POST /api/coupons/apply`
+- **Description:** Applies a coupon code and updates repeat counts
+- **Request Body:**
+  ```json
+  {
+    "couponCode": "SUMMER2023",
+    "userId": "user123"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Coupon applied successfully"
+  }
+  ```
 
-6. **Generate Prisma Client**
+## Testing
 
-   ```bash
-   npx prisma generate
-   ```
+To run the unit tests:
 
-7. **Start the server**:
-
-   Using npm:
-
-   ```bash
-   npm run dev
-   ```
-
-   Using yarn:
-
-   ```bash
-   yarn dev
-   ```
-
-## Running Tests
-
-To test the API using tools like Postman, Insomnia, or a testing library like Jest:
-
-1. **Unit Tests**:
-
-   - Use Jest or any other testing framework of your choice.
-   - You can define API request tests with a mock server and Prisma test client.
-
-2. **Manual Testing with Postman**:
-   - Set up requests according to the API documentation.
-   - For example:
-     - `GET /api/v1/collections?user_id=1&page=1&limit=10` to view collections with pagination.
-
-### Example Test Request
-
-**Create Collection Example**:
-
-```http
-POST /api/v1/collections
-Content-Type: application/json
-
-{
-  "name": "Favorites",
-  "description": "My favorite movies",
-  "user_id": 1
-}
+```
+npm test
 ```
 
-This README now incorporates the updated API structure with RESTful conventions while maintaining the original project setup, database schema, and testing information. The API documentation section has been significantly revised to reflect the new endpoint structure and naming conventions.
+To test the API using curl:
+
+1. Add repeat counts to a coupon:
+   ```
+   curl -X POST http://localhost:3000/api/coupons/repeat-counts \
+   -H "Content-Type: application/json" \
+   -d '{"couponCode": "SUMMER2023", "repeatCounts": {"globalTotal": 10000, "userTotal": 3, "userDaily": 1, "userWeekly": 1}}'
+   ```
+
+2. Verify a coupon code:
+   ```
+   curl http://localhost:3000/api/coupons/verify/SUMMER2023
+   ```
+
+3. Apply a coupon code:
+   ```
+   curl -X POST http://localhost:3000/api/coupons/apply \
+   -H "Content-Type: application/json" \
+   -d '{"couponCode": "SUMMER2023", "userId": "user123"}'
+   ```
+
+## Design Decisions and Trade-offs
+
+1. In-memory Database: We've used an in-memory database abstraction for quick development and testing. This allows for easy transition to a persistent store in the future.
+
+2. Modular Architecture: The project is structured with separate modules for coupon management, validation, and application to improve maintainability and scalability.
+
+3. Assumption: We assume that coupon codes are case-sensitive. This decision was made to provide more unique code possibilities but could be adjusted if needed.
+
+## Scalability Considerations
+
+1. Database Scaling: As the system grows, transitioning to a distributed database system might be necessary to handle increased load.
+
+2. Caching: Implementing a caching layer (e.g., Redis) for frequently accessed coupon data could improve performance.
+
+3. Rate Limiting: To prevent abuse, implementing rate limiting on API endpoints should be considered.
+
+4. Horizontal Scaling: The server should be designed to allow for easy horizontal scaling to handle increased traffic.
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
