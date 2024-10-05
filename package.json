@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "clean": "rm -rf dist coverage",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "create-module": "npx tsx scripts/createModule.ts"
   },
   "keywords": [],
   "author": "",
@@ -37,7 +38,8 @@
     "redis": "^4.7.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",
@@ -47,6 +49,7 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.5.5",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "husky": "^9.1.6",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",

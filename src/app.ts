@@ -77,8 +77,9 @@ app.use((_req: Request, res: Response, _next: NextFunction) => {
 
 const startServer = async () => {
   try {
-    await connectMongoDB();
     await connectRedis();
+    await connectMongoDB();
+    
 
     if (process.env.NODE_ENV !== "test") {
       app.listen(port, () => {

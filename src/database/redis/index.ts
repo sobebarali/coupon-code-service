@@ -5,8 +5,9 @@ import Logging from "@src/library/logging";
 let redisClient: RedisClientType | null = null;
 
 const connectRedis = async (): Promise<RedisClientType> => {
+  // If the client already exists, return the cached version
   if (redisClient) {
-    return redisClient; 
+    return redisClient;
   }
 
   const client = createClient({
@@ -37,7 +38,7 @@ const connectRedis = async (): Promise<RedisClientType> => {
 
   try {
     await client.connect();
-    redisClient = client as RedisClientType; 
+    redisClient = client as RedisClientType;
     Logging.log("Redis connection established and cached.");
     return redisClient;
   } catch (error) {
@@ -48,7 +49,6 @@ const connectRedis = async (): Promise<RedisClientType> => {
   }
 };
 
-// Export the client for use in other parts of the app
 export const getRedisClient = (): RedisClientType => {
   if (!redisClient) {
     throw new Error("Redis client not initialized. Call connectRedis first.");
