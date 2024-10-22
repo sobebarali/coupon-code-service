@@ -4,6 +4,7 @@ import createSchema from '../validators/create.validator';
 import createCoupon from '../handlers/create.handler';
 import { typePayload } from '../types/create.types';
 
+
 export default async function endpointCreateCoupon(
   req: Request,
   res: Response

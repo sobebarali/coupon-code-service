@@ -8,6 +8,7 @@ import config from "@src/config";
 import Logging from "@src/library/logging";
 import connectMongoDB from "@src/database/mongo";
 import connectRedis from "@src/database/redis";
+import setupSwaggerDocs from "@src/library/swagger";
 
 const app: Application = express();
 const port = config.PORT;
@@ -38,11 +39,11 @@ if (!isTest) {
         allowedHeaders: ["content-type"],
         methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
         credentials: true,
-      })
+      }),
     );
   } else if (prodCorsOrigin) {
     Logging.info(
-      `Running in production mode - allowing CORS for domain: ${prodCorsOrigin}`
+      `Running in production mode - allowing CORS for domain: ${prodCorsOrigin}`,
     );
     app.use(
       cors({
@@ -50,7 +51,7 @@ if (!isTest) {
         allowedHeaders: ["content-type"],
         methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
         credentials: true,
-      })
+      }),
     );
   } else {
     Logging.warn("Production CORS origin not set, defaulting to no CORS.");
@@ -58,11 +59,12 @@ if (!isTest) {
 }
 
 // Routes
-app.get("/", (res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.send("Hello World");
 });
 
-app.use("/api/v1", router);
+app.use("/api/v1", router as express.Router);
+setupSwaggerDocs(app as express.Express);
 
 // Error Handling Middleware
 app.use((_req: Request, res: Response, _next: NextFunction) => {
@@ -79,11 +81,19 @@ const startServer = async () => {
   try {
     await connectRedis();
     await connectMongoDB();
-    
 
     if (process.env.NODE_ENV !== "test") {
       app.listen(port, () => {
         Logging.info(`Server is running at http://localhost:${port}`);
+        Logging.info(
+          `Swagger Docs available at http://localhost:${port}/api-docs`,
+        );
+        Logging.info(
+          `Coupon API available at http://localhost:${port}/api/v1/coupon`,
+        );
+
+        //node env
+        Logging.info(`NODE_ENV: ${process.env.NODE_ENV}`);
       });
     }
   } catch (error) {

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import runValidation from '../../../utils/runValidation';
-import updateSchema from '../validators/update.validator';
+import { typePayload } from "../types/update.types";
+import updateSchema from "../validators/update.validator";
 import updateCoupon from '../handlers/update.handler';
-import { typePayload } from '../types/update.types';
+
 
 export default async function endpointUpdateCoupon(
   req: Request,

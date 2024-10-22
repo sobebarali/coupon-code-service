@@ -1,12 +1,12 @@
 export type typePayload = {
   couponId: string;
-  code: string;
+  code: string | undefined;
   repeatCountConfig: {
-    globalTotal: number;
-    userTotal: number;
-    userDaily: number;
-    userWeekly: number;
-  };
+    globalTotal: number | undefined;
+    userTotal: number | undefined;
+    userDaily: number | undefined;
+    userWeekly: number | undefined;
+  } | undefined;
 };
 
 export type typeResultData = {

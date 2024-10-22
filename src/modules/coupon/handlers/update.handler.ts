@@ -11,20 +11,20 @@ export default async function updateCoupon({
   repeatCountConfig,
 }: {
   couponId: string;
-  code: string;
+  code: string | undefined;
   repeatCountConfig: {
-    globalTotal: number;
-    userTotal: number;
-    userDaily: number;
-    userWeekly: number;
-  };
+    globalTotal: number | undefined;
+    userTotal: number | undefined;
+    userDaily: number | undefined;
+    userWeekly: number | undefined;
+  } | undefined;
 }): Promise<typeResult> {
   let data: null | typeResultData = null;
   let error: null | typeResultError = null;
 
   try {
     // Perform the update operation using the repository function
-    await couponUpdate({ couponId, code, repeatCountConfig});
+    await couponUpdate({ couponId, code, repeatCountConfig });
   } catch (err: any) {
     console.error("[COUPON] UPDATE Error: ", err);
     error = {

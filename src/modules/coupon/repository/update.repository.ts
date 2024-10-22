@@ -7,13 +7,14 @@ export default async function couponUpdate({
   repeatCountConfig,
 }: {
   couponId: string;
-  code: string;
+  code: string | undefined;
   repeatCountConfig: {
-    globalTotal: number;
-    userTotal: number;
-    userDaily: number;
-    userWeekly: number;
-  };
+        globalTotal: number | undefined;
+        userTotal: number | undefined;
+        userDaily: number | undefined;
+        userWeekly: number | undefined;
+      }
+    | undefined;
 }) {
   try {
     const coupon = await Coupon.findOneAndUpdate(
